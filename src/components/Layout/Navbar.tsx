@@ -52,9 +52,6 @@ const Navbar = () => {
             <div className="ml-2">
               <ThemeToggle />
             </div>
-            <Button className="ml-4 bg-flutter-blue hover:bg-flutter-blue/90">
-              Download CV
-            </Button>
           </nav>
 
           {/* Mobile Navigation Toggle */}
@@ -84,9 +81,6 @@ const Navbar = () => {
                 {link.name}
               </a>
             ))}
-            <Button className="mt-2 bg-flutter-blue hover:bg-flutter-blue/90">
-              Download CV
-            </Button>
           </nav>
         </div>
       )}

@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { sendEmail } from '@/utils/emailService';
 
 const ContactSection = () => {
-  const { toast } = useToast();
+  const { toast: shadcnToast } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,27 +24,16 @@ const ContactSection = () => {
     setIsSubmitting(true);
     
     try {
-      // This is a simple implementation - in production, you'd want to use a proper email service
-      // You can integrate with EmailJS, Formspree, or your own backend service
-      const response = await fetch('https://formsubmit.co/ajax/tanvir@gmail.com', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message
-        })
+      const success = await sendEmail({
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message
       });
       
-      if (response.ok) {
-        toast({
-          title: "Message sent!",
-          description: "Thank you for your message. I'll get back to you soon.",
-        });
+      if (success) {
+        toast.success("Message sent! I'll get back to you soon.");
+        
         setFormData({
           name: '',
           email: '',
@@ -51,18 +41,11 @@ const ContactSection = () => {
           message: ''
         });
       } else {
-        toast({
-          title: "Error",
-          description: "Something went wrong. Please try again later.",
-          variant: "destructive"
-        });
+        toast.error("Something went wrong. Please try again later.");
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again later.",
-        variant: "destructive"
-      });
+      console.error("Error sending email:", error);
+      toast.error("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
