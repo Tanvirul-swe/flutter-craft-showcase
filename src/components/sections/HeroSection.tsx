@@ -18,6 +18,22 @@ const HeroSection = () => {
     return () => clearInterval(typing);
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const downloadCV = () => {
+    const link = document.createElement('a');
+    link.href = 'https://drive.usercontent.google.com/download?id=1oNQvnUJetWvXhFC56gXSmug8HDEcYULx&export=download&authuser=0';
+    link.download = 'CV.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <section 
       id="home" 
@@ -53,11 +69,14 @@ const HeroSection = () => {
             </p>
             
             <div className="flex flex-wrap gap-4 pt-4">
-              <Button size="lg" className="bg-flutter-blue hover:bg-flutter-blue/90">
+              <Button size="lg" className="bg-flutter-blue hover:bg-flutter-blue/90" onClick={downloadCV}>
                 <Download className="mr-2 h-4 w-4" /> Download CV
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" onClick={() => scrollToSection('projects')}>
                 View Projects
+              </Button>
+              <Button size="lg" onClick={() => scrollToSection('contact')}>
+                Contact Me
               </Button>
               <Button size="lg" variant="ghost" className="gap-2">
                 <Github size={20} />
