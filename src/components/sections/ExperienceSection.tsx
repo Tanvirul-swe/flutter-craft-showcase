@@ -12,25 +12,32 @@ type ExperienceItem = {
 const ExperienceSection = () => {
   const experiences: ExperienceItem[] = [
     {
-      company: "Tech Innovators",
-      position: "Senior Flutter Developer",
-      duration: "2022 - Present",
-      description: "Leading a team of mobile developers, architecting and developing complex Flutter applications. Implemented advanced state management solutions and optimized app performance.",
-      technologies: ["Flutter", "Firebase", "RESTful APIs", "GetX", "BLoC"],
+      company: "iPAGE Global Inc",
+      position: "Software Engineer",
+      duration: "March 2022 – Present",
+      description: "Leading the development of robust cross-platform mobile applications using Flutter. Architecting scalable solutions, implementing clean architecture, and optimizing performance for production-ready apps. Collaborating across teams to ensure seamless UI/UX delivery and API integration.",
+      technologies: ["Flutter", "Firebase", "RESTful APIs", "GetX", "BLoC · Clean Architecture", "GraphQL", "SQLite"],
     },
     {
-      company: "Mobile Solutions Inc",
-      position: "Flutter Developer",
-      duration: "2020 - 2022",
-      description: "Developed and maintained multiple Flutter applications with seamless integration of third-party services. Collaborated with designers to implement pixel-perfect UI.",
-      technologies: ["Flutter", "Provider", "SQLite", "Google Maps API"],
+      company: "Anun Limited",
+      position: "Senior Software Engineer",
+      duration: "Feb 2022 – Jun 2022",
+      description: "Contributed to core app modules in a part-time capacity, building high-quality features and optimizing existing functionalities. Enhanced user experience by improving state handling and performance bottlenecks.",
+      technologies: ["Flutter", "SQLite", "Google Maps API", " Firebase", "RESTful APIs", "GetX"],
     },
     {
-      company: "App Factory",
-      position: "Junior Mobile Developer",
-      duration: "2019 - 2020",
-      description: "Started with Android native development and transitioned to Flutter. Created UI components and implemented basic app functionality.",
-      technologies: ["Flutter", "Android", "Java", "Dart"],
+      company: "ICT Division (Govt. of Bangladesh)",
+      position: "Flutter App Developer",
+      duration: "Nov 2021 – Feb 2022",
+      description: "Worked on government digital service apps, focusing on mobile solutions for citizens. Built and maintained mobile apps with clean UIs and ensured stability across platforms. Collaborated with cross-functional teams to meet public sector standards.",
+      technologies: ["Flutter", "Firebase", "RESTful APIs ", "State Management"],
+    },
+    {
+      company: "NapTech Labs",
+      position: "App Developer Intern",
+      duration: "Apr 2021 – Sep 2021",
+      description: "Supported the mobile app team in developing UI components, integrating APIs, and testing app performance. Gained solid foundational experience in Flutter, native Android development, and agile methodologies.",
+      technologies: ["Flutter", "Android", "Java", "Dart", "Git"],
     },
   ];
 
@@ -51,14 +58,14 @@ const ExperienceSection = () => {
           <div className="relative">
             {/* Timeline line */}
             <div className="absolute left-0 md:left-1/2 transform md:-translate-x-1/2 h-full w-1 bg-flutter-blue/20 rounded"></div>
-            
+
             {/* Experience items */}
             {experiences.map((exp, index) => (
               <div key={index} className="relative mb-16 reveal">
                 <div className={`md:flex items-center ${index % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
                   {/* Timeline dot */}
                   <div className="absolute left-0 md:left-1/2 transform -translate-x-1/2 w-4 h-4 rounded-full bg-flutter-blue z-10"></div>
-                  
+
                   {/* Content */}
                   <div className={`md:w-1/2 ${index % 2 === 0 ? 'md:pl-12' : 'md:pr-12'}`}>
                     <div className="bg-white dark:bg-flutter-dark/20 p-6 rounded-lg shadow-md">
@@ -79,7 +86,7 @@ const ExperienceSection = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Empty div for layout on mobile */}
                   <div className="md:w-1/2 mb-6 md:mb-0"></div>
                 </div>
@@ -94,7 +101,11 @@ const ExperienceSection = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
             {[1, 2, 3, 4].map((index) => (
               <div key={index} className="bg-white dark:bg-flutter-dark/30 w-32 h-32 rounded-lg flex items-center justify-center shadow-sm">
-                <div className="text-2xl text-flutter-blue/30 font-bold">LOGO {index}</div>
+                <img
+                  src={clientLogos[index - 1]}
+                  alt={`Client Logo ${index}`}
+                  className="w-24 h-24 object-contain"
+                />
               </div>
             ))}
           </div>
@@ -103,5 +114,12 @@ const ExperienceSection = () => {
     </section>
   );
 };
+// List of Client logos
+const clientLogos = [
+  "https://ruba-it.com/wp-content/uploads/2024/02/website-logo-1-300x109.png",
+  "https://storage.googleapis.com/wequi-3d3fb.appspot.com/merchants/aunun-text-icon-removebg-preview.png",
+  "https://ruba-it.com/wp-content/uploads/2024/02/website-logo-1-300x109.png",
+  "https://storage.googleapis.com/wequi-3d3fb.appspot.com/merchants/aunun-text-icon-removebg-preview.png",
+];
 
 export default ExperienceSection;

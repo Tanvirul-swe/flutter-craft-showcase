@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 
 const AboutSection = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -16,10 +16,10 @@ const AboutSection = () => {
       },
       { threshold: 0.1 }
     );
-    
+
     const elements = document.querySelectorAll('.reveal');
     elements.forEach(el => observer.observe(el));
-    
+
     return () => {
       elements.forEach(el => observer.unobserve(el));
     };
@@ -38,9 +38,12 @@ const AboutSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="reveal">
             <div className="relative">
-              <div className="w-full h-96 bg-gradient-to-br from-flutter-blue/20 to-flutter-teal/20 rounded-lg"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-5xl font-bold text-flutter-blue/30">
-                Profile Image
+              <div className="w-full h-96 bg-gradient-to-br from-flutter-blue/20 to-flutter-teal/20 rounded-lg overflow-hidden">
+                <img
+                  src="https://storage.googleapis.com/wequi-3d3fb.appspot.com/merchants/WhatsApp Image 2025-04-15 at 22.43.44.jpeg"
+                  alt="Profile"
+                  className="w-full h-full object-cover scale-100 transition-transform duration-300 hover:scale-60 rounded-lg"
+                />
               </div>
               <div className="absolute -bottom-4 -right-4 w-40 h-40 bg-flutter-teal/10 rounded-lg"></div>
               <div className="absolute -top-4 -left-4 w-40 h-40 bg-flutter-blue/10 rounded-lg"></div>
@@ -50,28 +53,26 @@ const AboutSection = () => {
           <div className="reveal">
             <h3 className="text-2xl font-bold mb-4">Flutter App Developer</h3>
             <p className="text-foreground/70 mb-6 leading-relaxed">
-              Hello! I'm a passionate Flutter developer with 3 years of experience in building 
-              cross-platform mobile applications. My journey in mobile development started with
-              native Android development, but I quickly fell in love with Flutter's capabilities
-              and haven't looked back since.
+              I'm a dedicated Flutter App Developer with over 3 years of hands-on experience in building high-quality, cross-platform mobile applications for iOS and Android. My development journey began with native Android, but I quickly transitioned to Flutter due to its flexibility, performance, and growing ecosystem—and I haven’t looked back since.
             </p>
             <p className="text-foreground/70 mb-6 leading-relaxed">
-              I specialize in creating beautiful, responsive, and high-performance applications
-              that work flawlessly on both iOS and Android. My approach combines clean architecture
-              principles with an eye for detail in UI/UX design.
+              I specialize in developing visually stunning, responsive, and high-performance mobile apps that deliver seamless user experiences across platforms. My work is driven by clean architecture principles, scalable code, and a strong focus on UI/UX design that aligns with modern usability standards.
+            </p>
+            <p className="text-foreground/70 mb-6 leading-relaxed">
+              Whether you're looking to build a startup MVP or scale an enterprise-level mobile solution, I bring both technical expertise and creative insight to help you succeed.
             </p>
 
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div>
-                <p><span className="font-semibold">Name:</span> John Developer</p>
+                <p><span className="font-semibold">Name:</span> Md. Tanvirul Islam</p>
                 <p><span className="font-semibold">Experience:</span> 3 Years</p>
               </div>
               <div>
-                <p><span className="font-semibold">Email:</span> hello@flutterdev.com</p>
-                <p><span className="font-semibold">Location:</span> Dhaka, Bangladesh</p>
+                <p><span className="font-semibold">Email:</span> tanvirul.islam.swe@gmail.com</p>
+                <p><span className="font-semibold">Location:</span> House#14, Road#7/1, Block-H, South Banasree, Dhaka, Bangladesh</p>
               </div>
             </div>
-            
+
             <div className="flex flex-wrap gap-4">
               <Button className="bg-flutter-blue hover:bg-flutter-blue/90">
                 Download CV
@@ -104,8 +105,8 @@ const AboutSection = () => {
                 year: "2020",
               },
             ].map((cert, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="glass-card p-6 transition-all hover:shadow-lg hover:scale-105 duration-300"
               >
                 <div className="w-12 h-12 rounded-full bg-flutter-blue/10 flex items-center justify-center mb-4 mx-auto">

@@ -4,26 +4,29 @@ import React, { useEffect } from 'react';
 type Skill = {
   name: string;
   level: number;
-  category: 'Languages' | 'Frameworks' | 'Tools';
+  category: 'Languages' | 'Frameworks & Libraries' | 'Tools';
 };
 
 const SkillsSection = () => {
   const skills: Skill[] = [
     { name: 'Dart', level: 95, category: 'Languages' },
-    { name: 'TypeScript', level: 85, category: 'Languages' },
-    { name: 'JavaScript', level: 90, category: 'Languages' },
-    { name: 'Flutter', level: 95, category: 'Frameworks' },
-    { name: 'Next.js', level: 80, category: 'Frameworks' },
-    { name: 'Firebase', level: 90, category: 'Frameworks' },
-    { name: 'React Native', level: 75, category: 'Frameworks' },
+    { name: 'Go', level: 85, category: 'Languages' },
+    { name: 'Java', level: 90, category: 'Languages' },
+    { name: 'Swift', level: 80, category: 'Languages' },
+
+    { name: 'Flutter', level: 95, category: 'Frameworks & Libraries' },
+    { name: 'Flutter Bloc', level: 80, category: 'Frameworks & Libraries' },
+    { name: 'Firebase', level: 90, category: 'Frameworks & Libraries' },
+    { name: 'Gin (Go)', level: 75, category: 'Frameworks & Libraries' },
+    // { name: 'React Native', level: 75, category: 'Frameworks & Libraries' },
+
     { name: 'Figma', level: 85, category: 'Tools' },
     { name: 'Git', level: 90, category: 'Tools' },
     { name: 'VS Code', level: 95, category: 'Tools' },
     { name: 'Postman', level: 80, category: 'Tools' },
-    { name: 'Adobe XD', level: 75, category: 'Tools' },
   ];
 
-  const categories = ['Languages', 'Frameworks', 'Tools'];
+  const categories = ['Languages', 'Frameworks & Libraries', 'Tools'];
 
   useEffect(() => {
     // Animation for skill bars
@@ -34,7 +37,7 @@ const SkillsSection = () => {
         (bar as HTMLElement).style.width = `${level}%`;
       });
     }, 300);
-    
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
@@ -45,10 +48,10 @@ const SkillsSection = () => {
       },
       { threshold: 0.1 }
     );
-    
+
     const elements = document.querySelectorAll('.reveal');
     elements.forEach(el => observer.observe(el));
-    
+
     return () => {
       elements.forEach(el => observer.unobserve(el));
     };
@@ -83,7 +86,7 @@ const SkillsSection = () => {
                           <span>{skill.level}%</span>
                         </div>
                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                          <div 
+                          <div
                             className="skill-bar h-2 rounded-full bg-gradient-to-r from-flutter-blue to-flutter-teal transition-all duration-1000 ease-out"
                             data-level={skill.level}
                             style={{ width: "0%" }}
@@ -101,13 +104,13 @@ const SkillsSection = () => {
         <div className="mt-16 max-w-3xl mx-auto reveal">
           <h3 className="text-xl font-bold mb-6 text-center">Additional Skills & Knowledge</h3>
           <div className="flex flex-wrap justify-center gap-3">
-            {["State Management", "RESTful APIs", "GraphQL", "UI/UX Design", 
-              "CI/CD", "Test-Driven Development", "Clean Architecture", "BLoC Pattern", 
-              "Provider", "GetX", "Firebase Auth", "SQLite", "Responsive Design", "Animations", 
+            {["State Management", "RESTful APIs", "GraphQL", "UI/UX Design",
+              "CI/CD", "Test-Driven Development", "Clean Architecture", "BLoC Pattern",
+              "Provider", "GetX", "Firebase Auth", "SQLite", "Responsive Design", "Animations",
               "Google Maps API", "In-App Purchases", "Push Notifications"]
               .map((skill, index) => (
-                <span 
-                  key={index} 
+                <span
+                  key={index}
                   className="bg-white dark:bg-flutter-dark/30 text-foreground/80 py-2 px-4 rounded-full text-sm shadow-sm"
                 >
                   {skill}

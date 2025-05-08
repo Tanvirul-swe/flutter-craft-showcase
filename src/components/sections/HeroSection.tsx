@@ -53,7 +53,7 @@ const HeroSection = () => {
         <div className="max-w-3xl">
           <div className="space-y-6 animate-fade-in-up">
             <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-              Flutter App <span className="text-gradient">Developer</span>
+            Full Stack Mobile <span className="text-gradient">Developer</span>
             </h1>
             
             <div className="h-12">
@@ -64,8 +64,7 @@ const HeroSection = () => {
             </div>
             
             <p className="text-lg text-foreground/70 max-w-2xl">
-              With 3 years of experience building beautiful, responsive, and high-performance 
-              mobile applications for iOS and Android with Flutter.
+            Full Stack Mobile App Developer with 3+ years of experience crafting beautiful, responsive, and high-performance iOS & Android apps using Flutter.
             </p>
             
             <div className="flex flex-wrap gap-4 pt-4">
@@ -78,10 +77,20 @@ const HeroSection = () => {
               <Button size="lg" onClick={() => scrollToSection('contact')}>
                 Contact Me
               </Button>
-              <Button size="lg" variant="ghost" className="gap-2">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="gap-2"
+                onClick={() => window.open('https://github.com/Tanvirul-swe', '_blank')}
+              >
                 <Github size={20} />
               </Button>
-              <Button size="lg" variant="ghost" className="gap-2">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="gap-2"
+                onClick={() => window.open('https://www.linkedin.com/in/tanvirul-islam-swe/', '_blank')}
+              >
                 <Linkedin size={20} />
               </Button>
             </div>
