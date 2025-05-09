@@ -1,0 +1,41 @@
+
+import React from 'react';
+import { Link, Outlet } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdminProtected from '@/components/admin/AdminProtected';
+import BlogList from '@/components/admin/BlogList';
+import SubscriberList from '@/components/admin/SubscriberList';
+
+const AdminDashboard: React.FC = () => {
+  return (
+    <AdminProtected>
+      <main className="container mx-auto px-4 py-24">
+        <div className="max-w-6xl mx-auto">
+          <header className="mb-8">
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">
+              Manage your blog posts and subscribers
+            </p>
+          </header>
+          
+          <Tabs defaultValue="posts">
+            <TabsList className="mb-4">
+              <TabsTrigger value="posts">Blog Posts</TabsTrigger>
+              <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
+            </TabsList>
+            <TabsContent value="posts">
+              <BlogList />
+            </TabsContent>
+            <TabsContent value="subscribers">
+              <SubscriberList />
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        <Outlet />
+      </main>
+    </AdminProtected>
+  );
+};
+
+export default AdminDashboard;

@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from '@/components/ThemeToggle';
-import { Analytics } from '@vercel/analytics/next';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,12 +19,13 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: 'Home', href: '#home' },
-    { name: 'About', href: '#about' },
-    { name: 'Skills', href: '#skills' },
-    { name: 'Projects', href: '#projects' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Home', href: '/' },
+    { name: 'About', href: '/#about' },
+    { name: 'Skills', href: '/#skills' },
+    { name: 'Projects', href: '/#projects' },
+    { name: 'Experience', href: '/#experience' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'Contact', href: '/#contact' },
   ];
 
   return (
@@ -35,20 +36,20 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 py-4 md:py-5">
         <div className="flex justify-between items-center">
-          <a href="#home" className="text-2xl font-bold text-gradient">
+          <Link to="/" className="text-2xl font-bold text-gradient">
             Flutter<span className="text-flutter-teal">Dev</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
+                to={link.href}
                 className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-flutter-blue transition-colors"
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
             <div className="ml-2">
               <ThemeToggle />
@@ -73,14 +74,14 @@ const Navbar = () => {
         <div className="md:hidden bg-background/95 backdrop-blur-md py-4 px-4">
           <nav className="flex flex-col space-y-3">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
-                href={link.href}
+                to={link.href}
                 className="px-4 py-2 text-foreground/80 hover:text-flutter-blue transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {link.name}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>

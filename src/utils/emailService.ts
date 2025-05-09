@@ -8,12 +8,20 @@ interface EmailData {
   message: string;
 }
 
+// SMTP configuration
+const SMTP_CONFIG = {
+  host: "server.vibd.me",
+  port: 465,
+  sender: "noreply@wequi.eu",
+  password: "SYqwhX@gktU2"
+};
+
 export const sendEmail = async (data: EmailData): Promise<boolean> => {
   try {
     // Build the email request
     const emailRequest = {
       to: data.email,
-      from: process.env.SMTP_FROM_EMAIL!,
+      from: SMTP_CONFIG.sender,
       subject: `Portfolio Contact: ${data.subject}`,
       body: `
         Name: ${data.name}
@@ -23,10 +31,10 @@ export const sendEmail = async (data: EmailData): Promise<boolean> => {
         ${data.message}
       `,
       smtp: {
-        host: process.env.SMTP_HOST!,
-        port: parseInt(process.env.SMTP_PORT!),
-        username: process.env.SMTP_USERNAME!,
-        password: process.env.SMTP_PASSWORD!,
+        host: SMTP_CONFIG.host,
+        port: SMTP_CONFIG.port,
+        username: SMTP_CONFIG.sender,
+        password: SMTP_CONFIG.password,
       },
     };
 
@@ -62,6 +70,39 @@ export const sendEmail = async (data: EmailData): Promise<boolean> => {
   } catch (error) {
     console.error("Failed to send email:", error);
     toast.error("Failed to send email. Please try again later.");
+    return false;
+  }
+};
+
+// Function to send notification emails to subscribers
+export const sendNotificationEmail = async (
+  subscriberEmail: string,
+  subject: string,
+  content: string
+): Promise<boolean> => {
+  try {
+    // Build the email request
+    const emailRequest = {
+      to: subscriberEmail,
+      from: SMTP_CONFIG.sender,
+      subject: subject,
+      body: content,
+      smtp: {
+        host: SMTP_CONFIG.host,
+        port: SMTP_CONFIG.port,
+        username: SMTP_CONFIG.sender,
+        password: SMTP_CONFIG.password,
+      },
+    };
+
+    console.log("Notification email would be sent:", emailRequest);
+    
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to send notification email:", error);
     return false;
   }
 };
