@@ -6,46 +6,96 @@ import { toast } from "sonner";
 const BLOGS_STORAGE_KEY = 'flutter-dev-blogs';
 const SUBSCRIBERS_STORAGE_KEY = 'flutter-dev-subscribers';
 
+// Initialize database if it doesn't exist
+const initializeDatabase = () => {
+  try {
+    // Check if blogs exist in localStorage
+    if (!localStorage.getItem(BLOGS_STORAGE_KEY)) {
+      localStorage.setItem(BLOGS_STORAGE_KEY, JSON.stringify([]));
+    }
+    
+    // Check if subscribers exist in localStorage
+    if (!localStorage.getItem(SUBSCRIBERS_STORAGE_KEY)) {
+      localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify([]));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to initialize database:", error);
+    return false;
+  }
+};
+
+// Initialize database on load
+initializeDatabase();
+
 // Get blogs from local storage
 export const getBlogs = (): BlogPost[] => {
-  const blogsJson = localStorage.getItem(BLOGS_STORAGE_KEY);
-  return blogsJson ? JSON.parse(blogsJson) : [];
+  try {
+    const blogsJson = localStorage.getItem(BLOGS_STORAGE_KEY);
+    return blogsJson ? JSON.parse(blogsJson) : [];
+  } catch (error) {
+    console.error("Error retrieving blogs:", error);
+    return [];
+  }
 };
 
 // Get published blogs
 export const getPublishedBlogs = (): BlogPost[] => {
-  return getBlogs().filter(blog => blog.published);
+  try {
+    return getBlogs().filter(blog => blog.published);
+  } catch (error) {
+    console.error("Error retrieving published blogs:", error);
+    return [];
+  }
 };
 
 // Get blog by slug
 export const getBlogBySlug = (slug: string): BlogPost | undefined => {
-  return getBlogs().find(blog => blog.slug === slug);
+  try {
+    return getBlogs().find(blog => blog.slug === slug);
+  } catch (error) {
+    console.error("Error retrieving blog by slug:", error);
+    return undefined;
+  }
 };
 
 // Save blog to local storage
 export const saveBlog = (blog: BlogPost): void => {
-  const blogs = getBlogs();
-  const existingBlogIndex = blogs.findIndex(b => b.id === blog.id);
-  
-  if (existingBlogIndex >= 0) {
-    blogs[existingBlogIndex] = { ...blog, updatedAt: new Date().toISOString() };
-  } else {
-    blogs.push({
-      ...blog,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
+  try {
+    const blogs = getBlogs();
+    const existingBlogIndex = blogs.findIndex(b => b.id === blog.id);
+    
+    if (existingBlogIndex >= 0) {
+      blogs[existingBlogIndex] = { ...blog, updatedAt: new Date().toISOString() };
+    } else {
+      blogs.push({
+        ...blog,
+        id: crypto.randomUUID(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    }
+    
+    localStorage.setItem(BLOGS_STORAGE_KEY, JSON.stringify(blogs));
+  } catch (error) {
+    console.error("Error saving blog:", error);
+    toast.error("Failed to save blog post");
   }
-  
-  localStorage.setItem(BLOGS_STORAGE_KEY, JSON.stringify(blogs));
 };
 
 // Delete blog
-export const deleteBlog = (id: string): void => {
-  const blogs = getBlogs();
-  const filteredBlogs = blogs.filter(blog => blog.id !== id);
-  localStorage.setItem(BLOGS_STORAGE_KEY, JSON.stringify(filteredBlogs));
+export const deleteBlog = (id: string): boolean => {
+  try {
+    const blogs = getBlogs();
+    const filteredBlogs = blogs.filter(blog => blog.id !== id);
+    localStorage.setItem(BLOGS_STORAGE_KEY, JSON.stringify(filteredBlogs));
+    return true;
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    toast.error("Failed to delete blog post");
+    return false;
+  }
 };
 
 // Generate slug from title
@@ -58,29 +108,67 @@ export const generateSlug = (title: string): string => {
 
 // Get subscribers
 export const getSubscribers = (): Subscriber[] => {
-  const subscribersJson = localStorage.getItem(SUBSCRIBERS_STORAGE_KEY);
-  return subscribersJson ? JSON.parse(subscribersJson) : [];
+  try {
+    const subscribersJson = localStorage.getItem(SUBSCRIBERS_STORAGE_KEY);
+    return subscribersJson ? JSON.parse(subscribersJson) : [];
+  } catch (error) {
+    console.error("Error retrieving subscribers:", error);
+    return [];
+  }
 };
 
 // Add subscriber
 export const addSubscriber = (email: string): boolean => {
-  const subscribers = getSubscribers();
-  
-  // Check if email already exists
-  if (subscribers.some(sub => sub.email === email)) {
-    toast.error("This email is already subscribed!");
+  try {
+    const subscribers = getSubscribers();
+    
+    // Check if email already exists
+    if (subscribers.some(sub => sub.email === email)) {
+      toast.error("This email is already subscribed!");
+      return false;
+    }
+    
+    const newSubscriber: Subscriber = {
+      id: crypto.randomUUID(),
+      email,
+      subscribedAt: new Date().toISOString()
+    };
+    
+    subscribers.push(newSubscriber);
+    localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify(subscribers));
+    return true;
+  } catch (error) {
+    console.error("Error adding subscriber:", error);
+    toast.error("Failed to add subscriber");
     return false;
   }
-  
-  const newSubscriber: Subscriber = {
-    id: crypto.randomUUID(),
-    email,
-    subscribedAt: new Date().toISOString()
+};
+
+// Export database to JSON file
+export const exportDatabase = (): { blogs: BlogPost[], subscribers: Subscriber[] } => {
+  return {
+    blogs: getBlogs(),
+    subscribers: getSubscribers()
   };
-  
-  subscribers.push(newSubscriber);
-  localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify(subscribers));
-  return true;
+};
+
+// Import database from JSON
+export const importDatabase = (data: { blogs?: BlogPost[], subscribers?: Subscriber[] }): boolean => {
+  try {
+    if (data.blogs) {
+      localStorage.setItem(BLOGS_STORAGE_KEY, JSON.stringify(data.blogs));
+    }
+    
+    if (data.subscribers) {
+      localStorage.setItem(SUBSCRIBERS_STORAGE_KEY, JSON.stringify(data.subscribers));
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Error importing database:", error);
+    toast.error("Failed to import database");
+    return false;
+  }
 };
 
 // Send email notification to subscribers about new blog post
