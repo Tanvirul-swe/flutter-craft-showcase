@@ -1,7 +1,23 @@
 
-import { BlogPost } from "@/types/blog";
+import { BlogPost, BlogPostDB } from "@/types/blog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+// Map DB blog to frontend model
+const mapBlogFromDB = (blog: BlogPostDB): BlogPost => {
+  return {
+    id: blog.id,
+    title: blog.title,
+    content: blog.content,
+    excerpt: blog.excerpt,
+    coverImage: blog.cover_image,
+    tags: blog.tags || [],
+    slug: blog.slug,
+    published: blog.published || false,
+    createdAt: blog.created_at,
+    updatedAt: blog.updated_at
+  };
+};
 
 // Generate slug from title
 export const generateSlug = (title: string): string => {
@@ -24,7 +40,7 @@ export const getBlogs = async (): Promise<BlogPost[]> => {
       return [];
     }
     
-    return data as BlogPost[];
+    return (data as BlogPostDB[]).map(mapBlogFromDB);
   } catch (error) {
     console.error("Error retrieving blogs:", error);
     return [];
@@ -45,7 +61,7 @@ export const getPublishedBlogs = async (): Promise<BlogPost[]> => {
       return [];
     }
     
-    return data as BlogPost[];
+    return (data as BlogPostDB[]).map(mapBlogFromDB);
   } catch (error) {
     console.error("Error retrieving published blogs:", error);
     return [];
@@ -66,7 +82,7 @@ export const getBlogBySlug = async (slug: string): Promise<BlogPost | undefined>
       return undefined;
     }
     
-    return data as BlogPost;
+    return mapBlogFromDB(data as BlogPostDB);
   } catch (error) {
     console.error("Error retrieving blog by slug:", error);
     return undefined;

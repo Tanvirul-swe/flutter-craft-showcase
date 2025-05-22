@@ -1,23 +1,34 @@
 
-import { BlogPost } from "@/types/blog";
+import { BlogPost, BlogPostDB } from "@/types/blog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { notifySubscribers } from "./subscriberOperations";
 
+// Map frontend blog to DB model
+const mapBlogToDB = (blog: BlogPost): Partial<BlogPostDB> => {
+  return {
+    title: blog.title,
+    content: blog.content,
+    excerpt: blog.excerpt,
+    cover_image: blog.coverImage,
+    tags: blog.tags,
+    slug: blog.slug,
+    published: blog.published,
+    updated_at: new Date().toISOString()
+  };
+};
+
 // Save blog to Supabase
 export const saveBlog = async (blog: BlogPost): Promise<void> => {
   try {
-    const { id, ...blogData } = blog;
+    const blogData = mapBlogToDB(blog);
     
-    if (id) {
+    if (blog.id) {
       // Update existing blog
       const { error } = await supabase
         .from('blogs')
-        .update({
-          ...blogData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', id);
+        .update(blogData)
+        .eq('id', blog.id);
         
       if (error) throw error;
     } else {
@@ -26,8 +37,7 @@ export const saveBlog = async (blog: BlogPost): Promise<void> => {
         .from('blogs')
         .insert({
           ...blogData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          created_at: new Date().toISOString()
         });
         
       if (error) throw error;
@@ -58,7 +68,7 @@ export const deleteBlog = async (id: string): Promise<boolean> => {
 // Export database to JSON file
 export const exportDatabase = async (): Promise<{ blogs: BlogPost[], subscribers: any[] }> => {
   try {
-    const { data: blogs, error: blogsError } = await supabase
+    const { data: blogsData, error: blogsError } = await supabase
       .from('blogs')
       .select('*');
     
@@ -70,8 +80,21 @@ export const exportDatabase = async (): Promise<{ blogs: BlogPost[], subscribers
     
     if (subsError) throw subsError;
     
+    const blogs = (blogsData as BlogPostDB[]).map(blog => ({
+      id: blog.id,
+      title: blog.title,
+      content: blog.content,
+      excerpt: blog.excerpt,
+      coverImage: blog.cover_image,
+      tags: blog.tags || [],
+      slug: blog.slug,
+      published: blog.published || false,
+      createdAt: blog.created_at,
+      updatedAt: blog.updated_at
+    }));
+    
     return {
-      blogs: blogs || [],
+      blogs: blogs,
       subscribers: subscribers || []
     };
   } catch (error) {
@@ -89,6 +112,20 @@ export const importDatabase = async (data: { blogs?: BlogPost[], subscribers?: a
     let success = true;
     
     if (data.blogs && data.blogs.length > 0) {
+      // Map blogs to DB format
+      const blogsDB = data.blogs.map(blog => ({
+        id: blog.id,
+        title: blog.title,
+        content: blog.content,
+        excerpt: blog.excerpt,
+        cover_image: blog.coverImage,
+        tags: blog.tags,
+        slug: blog.slug,
+        published: blog.published,
+        created_at: blog.createdAt,
+        updated_at: blog.updatedAt
+      }));
+      
       // First clear existing blogs
       const { error: clearError } = await supabase
         .from('blogs')
@@ -102,7 +139,7 @@ export const importDatabase = async (data: { blogs?: BlogPost[], subscribers?: a
         // Insert new blogs
         const { error: insertError } = await supabase
           .from('blogs')
-          .insert(data.blogs);
+          .insert(blogsDB);
         
         if (insertError) {
           console.error("Error importing blogs:", insertError);

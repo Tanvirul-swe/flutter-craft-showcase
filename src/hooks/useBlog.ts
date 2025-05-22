@@ -26,72 +26,96 @@ export const useBlog = () => {
   }, []);
 
   // Load blogs from storage
-  const loadBlogs = () => {
+  const loadBlogs = async () => {
     setIsLoading(true);
-    setBlogs(getBlogs());
-    setPublishedBlogs(getPublishedBlogs());
-    setIsLoading(false);
+    try {
+      const allBlogs = await getBlogs();
+      setBlogs(allBlogs);
+      
+      const publishedBlogsData = await getPublishedBlogs();
+      setPublishedBlogs(publishedBlogsData);
+    } catch (error) {
+      console.error("Error loading blogs:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Load subscribers from storage
-  const loadSubscribers = () => {
-    setSubscribers(getSubscribers());
+  const loadSubscribers = async () => {
+    try {
+      const subscribersData = await getSubscribers();
+      setSubscribers(subscribersData);
+    } catch (error) {
+      console.error("Error loading subscribers:", error);
+    }
   };
 
   // Create or update blog
   const upsertBlog = async (blog: Partial<BlogPost>, publish: boolean = false): Promise<BlogPost> => {
     setIsLoading(true);
     
-    // Make sure we have required fields
-    if (!blog.title) throw new Error("Blog title is required");
-    if (!blog.content) throw new Error("Blog content is required");
-    
-    const slug = blog.slug || generateSlug(blog.title);
-    const excerpt = blog.excerpt || blog.content.substring(0, 150) + '...';
-    
-    const newBlog: BlogPost = {
-      id: blog.id || '',
-      title: blog.title,
-      content: blog.content,
-      excerpt: excerpt,
-      coverImage: blog.coverImage || '',
-      tags: blog.tags || [],
-      slug: slug,
-      published: publish,
-      createdAt: blog.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    saveBlog(newBlog);
-    
-    // If publishing and wasn't published before, notify subscribers
-    if (publish && !blog.published) {
-      await notifySubscribers(newBlog);
+    try {
+      // Make sure we have required fields
+      if (!blog.title) throw new Error("Blog title is required");
+      if (!blog.content) throw new Error("Blog content is required");
+      
+      const slug = blog.slug || generateSlug(blog.title);
+      const excerpt = blog.excerpt || blog.content.substring(0, 150) + '...';
+      
+      const newBlog: BlogPost = {
+        id: blog.id || '',
+        title: blog.title,
+        content: blog.content,
+        excerpt: excerpt,
+        coverImage: blog.coverImage || '',
+        tags: blog.tags || [],
+        slug: slug,
+        published: publish,
+        createdAt: blog.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      await saveBlog(newBlog);
+      
+      // If publishing and wasn't published before, notify subscribers
+      if (publish && !blog.published) {
+        await notifySubscribers(newBlog);
+      }
+      
+      await loadBlogs();
+      return newBlog;
+    } catch (error) {
+      console.error("Error upserting blog:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
-    
-    loadBlogs();
-    setIsLoading(false);
-    return newBlog;
   };
 
   // Delete a blog
-  const removeBlog = (id: string) => {
+  const removeBlog = async (id: string) => {
     setIsLoading(true);
-    deleteBlog(id);
-    loadBlogs();
-    setIsLoading(false);
+    try {
+      await deleteBlog(id);
+      await loadBlogs();
+    } catch (error) {
+      console.error("Error removing blog:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Get a blog by slug
-  const getBlog = (slug: string): BlogPost | undefined => {
-    return getBlogBySlug(slug);
+  const getBlog = async (slug: string): Promise<BlogPost | undefined> => {
+    return await getBlogBySlug(slug);
   };
 
   // Subscribe to blog
-  const subscribe = (email: string): boolean => {
-    const success = addSubscriber(email);
+  const subscribe = async (email: string): Promise<boolean> => {
+    const success = await addSubscriber(email);
     if (success) {
-      loadSubscribers();
+      await loadSubscribers();
     }
     return success;
   };

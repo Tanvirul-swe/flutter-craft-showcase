@@ -1,7 +1,16 @@
 
-import { Subscriber } from "@/types/blog";
+import { Subscriber, SubscriberDB } from "@/types/blog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+// Map DB subscriber to frontend model
+const mapSubscriberFromDB = (subscriber: SubscriberDB): Subscriber => {
+  return {
+    id: subscriber.id,
+    email: subscriber.email,
+    subscribedAt: subscriber.subscribed_at
+  };
+};
 
 // Get subscribers
 export const getSubscribers = async (): Promise<Subscriber[]> => {
@@ -16,7 +25,7 @@ export const getSubscribers = async (): Promise<Subscriber[]> => {
       return [];
     }
     
-    return data as Subscriber[];
+    return (data as SubscriberDB[]).map(mapSubscriberFromDB);
   } catch (error) {
     console.error("Error retrieving subscribers:", error);
     return [];
