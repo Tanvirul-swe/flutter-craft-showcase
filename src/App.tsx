@@ -10,6 +10,7 @@ import BlogPage from "./pages/BlogPage";
 import BlogDetailPage from "./pages/BlogDetailPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import BlogEditorPage from "./pages/BlogEditorPage";
+import BlogWritePage from "./pages/BlogWritePage";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/blog/new" element={<BlogEditorPage />} />
             <Route path="/admin/blog/:slug" element={<BlogEditorPage />} />
+            <Route path="/write-blog" element={<BlogWritePage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
