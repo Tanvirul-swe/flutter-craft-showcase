@@ -106,9 +106,9 @@ export const useBlog = () => {
     }
   };
 
-  // Get a blog by slug
-  const getBlog = async (slug: string): Promise<BlogPost | undefined> => {
-    return await getBlogBySlug(slug);
+  // Get a blog by slug - now returns from cached blogs array rather than making a new request
+  const getBlog = (slug: string): BlogPost | undefined => {
+    return blogs.find(blog => blog.slug === slug);
   };
 
   // Subscribe to blog

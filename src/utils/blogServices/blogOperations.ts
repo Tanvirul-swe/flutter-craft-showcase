@@ -37,6 +37,10 @@ export const saveBlog = async (blog: BlogPost): Promise<void> => {
         .from('blogs')
         .insert({
           ...blogData,
+          title: blog.title, // Ensuring required fields are present
+          content: blog.content,
+          excerpt: blog.excerpt,
+          slug: blog.slug,
           created_at: new Date().toISOString()
         });
         
