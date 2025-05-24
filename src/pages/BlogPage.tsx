@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '@/hooks/useBlog';
+import { BlogPost } from '@/types/blog'; // Added missing import
 import BlogCard from '@/components/blog/BlogCard';
 import BlogDetailsDialog from '@/components/blog/BlogDetailsDialog';
 import SubscriptionForm from '@/components/blog/SubscriptionForm';
@@ -9,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Filter, Search, X } from 'lucide-react';
+import { Filter, Search, X, Lock } from 'lucide-react';
 import {
   Pagination,
   PaginationContent,
@@ -143,9 +144,19 @@ const BlogPage: React.FC = () => {
       <div className="max-w-6xl mx-auto">
         <header className="mb-10 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog</h1>
-          <p className="text-lg text-muted-foreground">
+          <p className="text-lg text-muted-foreground mb-4">
             Insights, tutorials, and news about Flutter development
           </p>
+          
+          {/* Admin Portal Link */}
+          <div className="flex justify-center mt-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/admin" className="flex items-center gap-1.5">
+                <Lock size={14} />
+                Admin Portal
+              </Link>
+            </Button>
+          </div>
         </header>
 
         {/* Search and Filters */}
