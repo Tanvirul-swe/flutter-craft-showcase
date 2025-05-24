@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Calendar } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -68,10 +69,7 @@ const BlogDetailPage: React.FC = () => {
         <Separator className="my-8" />
         
         <div className="prose prose-lg max-w-none">
-          {/* Split content by newlines and render as paragraphs */}
-          {blog.content.split('\n').map((paragraph, index) => (
-            paragraph ? <p key={index}>{paragraph}</p> : <br key={index} />
-          ))}
+          <ReactMarkdown>{blog.content}</ReactMarkdown>
         </div>
       </article>
     </main>

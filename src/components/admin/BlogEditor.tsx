@@ -5,16 +5,18 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import ReactMarkdown from 'react-markdown';
 
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBlog } from '@/hooks/useBlog';
 import { generateSlug } from '@/utils/blogService';
-import { Save, SendHorizonal } from 'lucide-react';
+import { Save, SendHorizonal, Eye, Code } from 'lucide-react';
 
 const formSchema = z.object({
   title: z.string().min(5, { message: 'Title must be at least 5 characters.' }),
@@ -31,6 +33,7 @@ const BlogEditor: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const { getBlog, upsertBlog } = useBlog();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editorTab, setEditorTab] = useState<'edit' | 'preview'>('edit');
   
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -94,13 +97,15 @@ const BlogEditor: React.FC = () => {
   const handlePublish = () => {
     form.handleSubmit((values) => onSubmit(values, true))();
   };
+  
+  const contentValue = form.watch('content');
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>{slug ? 'Edit Blog Post' : 'Create New Blog Post'}</CardTitle>
+    <Card className="w-full max-w-4xl mx-auto shadow-lg border-border/40">
+      <CardHeader className="bg-card/50">
+        <CardTitle className="text-xl">{slug ? 'Edit Blog Post' : 'Create New Blog Post'}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit((values) => onSubmit(values, false))} className="space-y-6">
             <FormField
@@ -110,7 +115,7 @@ const BlogEditor: React.FC = () => {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Blog post title" {...field} />
+                    <Input placeholder="Blog post title" className="border-input/60" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +129,7 @@ const BlogEditor: React.FC = () => {
                 <FormItem>
                   <FormLabel>Cover Image URL</FormLabel>
                   <FormControl>
-                    <Input placeholder="https://example.com/image.jpg" {...field} />
+                    <Input placeholder="https://example.com/image.jpg" className="border-input/60" {...field} />
                   </FormControl>
                   <FormDescription>
                     Enter a URL for the blog post cover image (optional)
@@ -141,7 +146,7 @@ const BlogEditor: React.FC = () => {
                 <FormItem>
                   <FormLabel>Tags</FormLabel>
                   <FormControl>
-                    <Input placeholder="flutter, mobile, development" {...field} />
+                    <Input placeholder="flutter, mobile, development" className="border-input/60" {...field} />
                   </FormControl>
                   <FormDescription>
                     Enter tags separated by commas
@@ -160,7 +165,7 @@ const BlogEditor: React.FC = () => {
                   <FormControl>
                     <Textarea 
                       placeholder="A brief summary of your blog post (optional)" 
-                      className="min-h-20"
+                      className="min-h-20 border-input/60"
                       {...field} 
                     />
                   </FormControl>
@@ -172,24 +177,56 @@ const BlogEditor: React.FC = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Content</FormLabel>
-                  <FormControl>
-                    <Textarea 
-                      placeholder="Write your blog post content here..." 
-                      className="min-h-[300px]"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            <div className="space-y-2">
+              <FormLabel>Content</FormLabel>
+              <Tabs value={editorTab} onValueChange={(value) => setEditorTab(value as 'edit' | 'preview')}>
+                <TabsList className="mb-2">
+                  <TabsTrigger value="edit" className="flex items-center gap-1">
+                    <Code className="h-4 w-4" />
+                    Edit
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    Preview
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="edit" className="mt-0">
+                  <FormField
+                    control={form.control}
+                    name="content"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea 
+                            placeholder="Write your blog post content here using markdown formatting..." 
+                            className="min-h-[300px] border-input/60 font-mono"
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Use Markdown syntax for formatting: **bold**, *italic*, # Heading, - List items, etc.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="preview" className="mt-0">
+                  <div className="border rounded-md p-4 min-h-[300px] bg-white dark:bg-black/20">
+                    <div className="prose prose-sm sm:prose-base dark:prose-invert max-w-none">
+                      {contentValue ? (
+                        <ReactMarkdown>{contentValue}</ReactMarkdown>
+                      ) : (
+                        <p className="text-muted-foreground">Nothing to preview yet. Start writing in the Edit tab.</p>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
+            
             <Separator className="my-4" />
 
             <div className="flex justify-end gap-2">

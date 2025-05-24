@@ -9,7 +9,7 @@ const BlogEditorPage: React.FC = () => {
 
   return (
     <AdminProtected>
-      <main className="container mx-auto px-4 py-12 md:py-16">
+      <main className="container mx-auto px-4 py-12 md:py-16 bg-muted/30">
         <div className="max-w-4xl mx-auto">
           <header className="mb-8">
             <h1 className="text-2xl md:text-3xl font-bold">{slug ? 'Edit Blog Post' : 'Create New Blog Post'}</h1>

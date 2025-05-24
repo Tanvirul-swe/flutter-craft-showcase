@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X, Calendar } from 'lucide-react';
 import { BlogPost } from '@/types/blog';
+import ReactMarkdown from 'react-markdown';
 
 interface BlogDetailsDialogProps {
   blog: BlogPost | null;
@@ -54,7 +55,7 @@ const BlogDetailsDialog: React.FC<BlogDetailsDialogProps> = ({ blog, isOpen, onO
         </DialogHeader>
         
         {blog.coverImage && (
-          <div className="aspect-video w-full overflow-hidden rounded-md my-4">
+          <div className="aspect-video w-full overflow-hidden rounded-md mb-4">
             <img
               src={blog.coverImage}
               alt={blog.title}
@@ -64,9 +65,7 @@ const BlogDetailsDialog: React.FC<BlogDetailsDialogProps> = ({ blog, isOpen, onO
         )}
         
         <div className="prose prose-sm sm:prose-base max-w-none">
-          {blog.content.split('\n').map((paragraph, index) => (
-            paragraph ? <p key={index} className="my-3">{paragraph}</p> : <br key={index} />
-          ))}
+          <ReactMarkdown>{blog.content}</ReactMarkdown>
         </div>
       </DialogContent>
     </Dialog>
