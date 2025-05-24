@@ -8,9 +8,10 @@ import { Calendar } from 'lucide-react';
 
 interface BlogCardProps {
   blog: BlogPost;
+  onClick?: () => void;
 }
 
-const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
+const BlogCard: React.FC<BlogCardProps> = ({ blog, onClick }) => {
   const formattedDate = new Date(blog.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -18,8 +19,8 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
   });
 
   return (
-    <Card className="h-full flex flex-col transition-all hover:shadow-md">
-      <Link to={`/blog/${blog.slug}`} className="flex flex-col flex-1">
+    <Card className="h-full flex flex-col transition-all hover:shadow-md cursor-pointer" onClick={onClick}>
+      <div className="flex flex-col flex-1">
         {blog.coverImage && (
           <div className="aspect-video w-full overflow-hidden rounded-t-lg">
             <img 
@@ -55,7 +56,7 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
             )}
           </div>
         </CardFooter>
-      </Link>
+      </div>
     </Card>
   );
 };

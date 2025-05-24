@@ -3,17 +3,32 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '@/hooks/useBlog';
 import BlogCard from '@/components/blog/BlogCard';
+import BlogDetailsDialog from '@/components/blog/BlogDetailsDialog';
 import SubscriptionForm from '@/components/blog/SubscriptionForm';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Filter, Search, X } from 'lucide-react';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+const ITEMS_PER_PAGE = 6;
 
 const BlogPage: React.FC = () => {
   const { publishedBlogs } = useBlog();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Extract all unique tags from blogs
   const allTags = Array.from(
@@ -32,17 +47,95 @@ const BlogPage: React.FC = () => {
     return matchesSearch && matchesTags;
   });
 
+  // Pagination logic
+  const totalPages = Math.max(1, Math.ceil(filteredBlogs.length / ITEMS_PER_PAGE));
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedBlogs = filteredBlogs.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
   const toggleTag = (tag: string) => {
     setSelectedTags(prev => 
       prev.includes(tag) 
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const clearFilters = () => {
     setSearchTerm('');
     setSelectedTags([]);
+    setCurrentPage(1);
+  };
+
+  const handleBlogClick = (blog: BlogPost) => {
+    setSelectedBlog(blog);
+    setIsDialogOpen(true);
+  };
+
+  // Generate pagination numbers
+  const getPaginationItems = () => {
+    const items = [];
+    
+    // Always show first page
+    items.push(
+      <PaginationItem key="first">
+        <PaginationLink 
+          isActive={currentPage === 1}
+          onClick={() => setCurrentPage(1)}
+        >
+          1
+        </PaginationLink>
+      </PaginationItem>
+    );
+    
+    // Show ellipsis if needed
+    if (currentPage > 3) {
+      items.push(
+        <PaginationItem key="ellipsis-1">
+          <PaginationEllipsis />
+        </PaginationItem>
+      );
+    }
+    
+    // Show pages around current page
+    for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+      if (i === 1 || i === totalPages) continue; // Skip first and last as they're handled separately
+      items.push(
+        <PaginationItem key={i}>
+          <PaginationLink 
+            isActive={currentPage === i}
+            onClick={() => setCurrentPage(i)}
+          >
+            {i}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    // Show ellipsis if needed
+    if (currentPage < totalPages - 2) {
+      items.push(
+        <PaginationItem key="ellipsis-2">
+          <PaginationEllipsis />
+        </PaginationItem>
+      );
+    }
+    
+    // Show last page if more than one page
+    if (totalPages > 1) {
+      items.push(
+        <PaginationItem key="last">
+          <PaginationLink 
+            isActive={currentPage === totalPages}
+            onClick={() => setCurrentPage(totalPages)}
+          >
+            {totalPages}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    }
+    
+    return items;
   };
 
   return (
@@ -63,7 +156,10 @@ const BlogPage: React.FC = () => {
               <Input 
                 placeholder="Search posts..." 
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // Reset to first page when search changes
+                }}
                 className="pl-10"
               />
             </div>
@@ -98,10 +194,14 @@ const BlogPage: React.FC = () => {
         </div>
 
         {/* Blog Posts */}
-        {filteredBlogs.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-            {filteredBlogs.map((blog) => (
-              <BlogCard key={blog.id} blog={blog} />
+        {paginatedBlogs.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {paginatedBlogs.map((blog) => (
+              <BlogCard 
+                key={blog.id} 
+                blog={blog} 
+                onClick={() => handleBlogClick(blog)} 
+              />
             ))}
           </div>
         ) : (
@@ -115,11 +215,51 @@ const BlogPage: React.FC = () => {
           </div>
         )}
 
+        {/* Pagination */}
+        {filteredBlogs.length > ITEMS_PER_PAGE && (
+          <Pagination className="my-8">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) setCurrentPage(currentPage - 1);
+                  }} 
+                  aria-disabled={currentPage === 1}
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              
+              {getPaginationItems()}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                  }} 
+                  aria-disabled={currentPage === totalPages}
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
+
         <Separator className="my-12" />
         
         {/* Subscription Form */}
         <SubscriptionForm />
       </div>
+      
+      {/* Blog Details Dialog */}
+      <BlogDetailsDialog 
+        blog={selectedBlog} 
+        isOpen={isDialogOpen} 
+        onOpenChange={setIsDialogOpen} 
+      />
     </main>
   );
 };
