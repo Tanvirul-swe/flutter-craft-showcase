@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -21,9 +21,8 @@ import {
   Table,
   Minus,
   Type,
-  AlignLeft,
-  AlignCenter,
-  AlignRight
+  Undo,
+  Redo
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Separator } from '@/components/ui/separator';
@@ -35,6 +34,11 @@ interface RichTextEditorProps {
   className?: string;
 }
 
+interface HistoryState {
+  value: string;
+  cursor: number;
+}
+
 const RichTextEditor: React.FC<RichTextEditorProps> = ({
   value,
   onChange,
@@ -42,7 +46,80 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
   className = ""
 }) => {
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
+  const [history, setHistory] = useState<HistoryState[]>([{ value, cursor: 0 }]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Add to history when content changes
+  const addToHistory = useCallback((newValue: string, cursor: number) => {
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push({ value: newValue, cursor });
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  }, [history, historyIndex]);
+
+  // Undo functionality
+  const handleUndo = useCallback(() => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      const prevState = history[newIndex];
+      setHistoryIndex(newIndex);
+      onChange(prevState.value);
+      
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(prevState.cursor, prevState.cursor);
+        }
+      }, 0);
+    }
+  }, [historyIndex, history, onChange]);
+
+  // Redo functionality
+  const handleRedo = useCallback(() => {
+    if (historyIndex < history.length - 1) {
+      const newIndex = historyIndex + 1;
+      const nextState = history[newIndex];
+      setHistoryIndex(newIndex);
+      onChange(nextState.value);
+      
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(nextState.cursor, nextState.cursor);
+        }
+      }, 0);
+    }
+  }, [historyIndex, history, onChange]);
+
+  // Handle keyboard shortcuts
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'z':
+          if (e.shiftKey) {
+            e.preventDefault();
+            handleRedo();
+          } else {
+            e.preventDefault();
+            handleUndo();
+          }
+          break;
+        case 'y':
+          e.preventDefault();
+          handleRedo();
+          break;
+        case 'b':
+          e.preventDefault();
+          insertMarkdown('**', '**');
+          break;
+        case 'i':
+          e.preventDefault();
+          insertMarkdown('*', '*');
+          break;
+      }
+    }
+  }, [handleUndo, handleRedo]);
 
   const insertMarkdown = (before: string, after: string = '', newLine: boolean = false) => {
     const textarea = textareaRef.current;
@@ -64,12 +141,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
       suffix + 
       value.substring(end);
     
+    const newCursorPos = start + prefix.length + before.length + selectedText.length;
+    addToHistory(newText, newCursorPos);
     onChange(newText);
 
     // Restore cursor position
     setTimeout(() => {
       textarea.focus();
-      const newCursorPos = start + prefix.length + before.length + selectedText.length;
       textarea.setSelectionRange(newCursorPos, newCursorPos);
     }, 0);
   };
@@ -86,6 +164,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const insertCodeBlock = () => {
     insertMarkdown('```\n', '\n```', true);
+  };
+
+  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    const cursor = e.target.selectionStart;
+    
+    // Only add to history if it's a significant change (not just typing)
+    if (Math.abs(newValue.length - value.length) > 1) {
+      addToHistory(newValue, cursor);
+    }
+    
+    onChange(newValue);
   };
 
   const toolbarButtons = [
@@ -111,6 +201,32 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="border-b bg-muted/20">
           <div className="flex items-center justify-between p-3">
             <div className="flex items-center flex-wrap gap-1">
+              {/* Undo/Redo buttons */}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={handleUndo}
+                disabled={historyIndex <= 0}
+                type="button"
+                title="Undo (Ctrl+Z)"
+              >
+                <Undo className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2"
+                onClick={handleRedo}
+                disabled={historyIndex >= history.length - 1}
+                type="button"
+                title="Redo (Ctrl+Y)"
+              >
+                <Redo className="h-3.5 w-3.5" />
+              </Button>
+              
+              <Separator orientation="vertical" className="h-6 mx-1" />
+              
               {toolbarButtons.map((button, index) => (
                 <Button
                   key={index}
@@ -152,7 +268,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           
           <div className="px-3 pb-2">
             <p className="text-xs text-muted-foreground">
-              💡 Use Markdown: **bold**, *italic*, # heading, - lists, [links](url), ![images](url)
+              💡 Use Markdown: **bold**, *italic*, # heading, - lists, [links](url), ![images](url) | Ctrl+Z to undo, Ctrl+Y to redo
             </p>
           </div>
         </div>
@@ -161,7 +277,8 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <Textarea
             ref={textareaRef}
             value={value}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={handleContentChange}
+            onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className="min-h-[500px] border-0 resize-none focus-visible:ring-0 font-mono text-sm rounded-none"
             style={{ fontFamily: 'ui-monospace, "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace' }}
@@ -174,7 +291,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
               <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:border prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-table:border prose-th:border prose-td:border prose-th:bg-muted prose-th:p-2 prose-td:p-2">
                 <ReactMarkdown
                   components={{
-                    code: ({ node, className, children, ...props }) => {
+                    code: ({ children, className, ...props }) => {
                       const match = /language-(\w+)/.exec(className || '');
                       const isCodeBlock = match || className?.includes('language-');
                       

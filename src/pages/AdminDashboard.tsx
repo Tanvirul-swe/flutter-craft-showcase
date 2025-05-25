@@ -8,6 +8,7 @@ import SubscriberList from '@/components/admin/SubscriberList';
 import AdminStats from '@/components/admin/AdminStats';
 import QuickActions from '@/components/admin/QuickActions';
 import RecentActivity from '@/components/admin/RecentActivity';
+import ManagePosts from '@/components/admin/ManagePosts';
 
 const AdminDashboard: React.FC = () => {
   return (
@@ -33,7 +34,10 @@ const AdminDashboard: React.FC = () => {
             </TabsList>
             
             <TabsContent value="overview" className="space-y-6">
-              <RecentActivity />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ManagePosts />
+                <RecentActivity />
+              </div>
             </TabsContent>
             
             <TabsContent value="posts">
