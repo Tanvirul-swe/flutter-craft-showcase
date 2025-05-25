@@ -12,10 +12,12 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { useBlog } from '@/hooks/useBlog';
 import { generateSlug } from '@/utils/blogService';
-import { Save, SendHorizonal } from 'lucide-react';
+import { Save, SendHorizonal, ArrowLeft, Eye } from 'lucide-react';
 import RichTextEditor from './RichTextEditor';
+import { Link } from 'react-router-dom';
 
 const formSchema = z.object({
   title: z.string().min(5, { message: 'Title must be at least 5 characters.' }),
@@ -33,6 +35,8 @@ const BlogEditor: React.FC = () => {
   const { getBlog, upsertBlog } = useBlog();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const existingBlog = slug ? getBlog(slug) : undefined;
+  
   // Initialize form with default values
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -47,25 +51,20 @@ const BlogEditor: React.FC = () => {
 
   // Load existing blog if editing
   useEffect(() => {
-    if (slug) {
-      const blog = getBlog(slug);
-      if (blog) {
-        form.reset({
-          title: blog.title,
-          content: blog.content,
-          excerpt: blog.excerpt,
-          coverImage: blog.coverImage || '',
-          tags: blog.tags.join(', '),
-        });
-      }
+    if (existingBlog) {
+      form.reset({
+        title: existingBlog.title,
+        content: existingBlog.content,
+        excerpt: existingBlog.excerpt,
+        coverImage: existingBlog.coverImage || '',
+        tags: existingBlog.tags.join(', '),
+      });
     }
-  }, [slug, getBlog, form]);
+  }, [existingBlog, form]);
 
   const onSubmit = async (values: FormValues, publish: boolean = false) => {
     setIsSubmitting(true);
     try {
-      const existingBlog = slug ? getBlog(slug) : undefined;
-      
       const blogToSave = {
         id: existingBlog?.id,
         title: values.title,
@@ -98,6 +97,33 @@ const BlogEditor: React.FC = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Header with navigation */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" asChild>
+            <Link to="/admin">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
+            </Link>
+          </Button>
+          {existingBlog && (
+            <div className="flex items-center gap-2">
+              <Badge variant={existingBlog.published ? "default" : "outline"}>
+                {existingBlog.published ? "Published" : "Draft"}
+              </Badge>
+              {existingBlog.published && (
+                <Button variant="outline" size="sm" asChild>
+                  <Link to={`/blog/${existingBlog.slug}`}>
+                    <Eye className="mr-1 h-3 w-3" />
+                    View
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
       <Card className="shadow-lg border-border/40">
         <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5">
           <CardTitle className="text-2xl flex items-center gap-2">
@@ -113,7 +139,7 @@ const BlogEditor: React.FC = () => {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-base font-semibold">Title</FormLabel>
+                      <FormLabel className="text-base font-semibold">Title *</FormLabel>
                       <FormControl>
                         <Input 
                           placeholder="Enter an engaging blog title" 
@@ -195,17 +221,16 @@ const BlogEditor: React.FC = () => {
                 name="content"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base font-semibold">Content</FormLabel>
+                    <FormLabel className="text-base font-semibold">Content *</FormLabel>
                     <FormControl>
                       <RichTextEditor
                         value={field.value}
                         onChange={field.onChange}
                         placeholder="Write your blog post content here using markdown formatting..."
-                        className="min-h-[400px]"
                       />
                     </FormControl>
                     <FormDescription>
-                      Use the toolbar for formatting or write Markdown directly: **bold**, *italic*, # Heading, - List items, etc.
+                      Use the toolbar for formatting or write Markdown directly. Switch to preview to see how your content will look.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

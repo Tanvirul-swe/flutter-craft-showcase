@@ -5,6 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminProtected from '@/components/admin/AdminProtected';
 import BlogList from '@/components/admin/BlogList';
 import SubscriberList from '@/components/admin/SubscriberList';
+import AdminStats from '@/components/admin/AdminStats';
+import QuickActions from '@/components/admin/QuickActions';
+import RecentActivity from '@/components/admin/RecentActivity';
 
 const AdminDashboard: React.FC = () => {
   return (
@@ -14,18 +17,29 @@ const AdminDashboard: React.FC = () => {
           <header className="mb-8">
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <p className="text-muted-foreground">
-              Manage your blog posts and subscribers
+              Manage your blog posts, subscribers, and monitor your content performance
             </p>
           </header>
           
-          <Tabs defaultValue="posts">
-            <TabsList className="mb-4">
+          <AdminStats />
+          
+          <QuickActions />
+          
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="mb-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="posts">Blog Posts</TabsTrigger>
               <TabsTrigger value="subscribers">Subscribers</TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="overview" className="space-y-6">
+              <RecentActivity />
+            </TabsContent>
+            
             <TabsContent value="posts">
               <BlogList />
             </TabsContent>
+            
             <TabsContent value="subscribers">
               <SubscriberList />
             </TabsContent>

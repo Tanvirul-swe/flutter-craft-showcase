@@ -18,12 +18,12 @@ import {
   Quote,
   Image,
   Strikethrough,
-  Underline,
+  Table,
+  Minus,
+  Type,
   AlignLeft,
   AlignCenter,
-  AlignRight,
-  Table,
-  Minus
+  AlignRight
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Separator } from '@/components/ui/separator';
@@ -84,82 +84,57 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     insertMarkdown(tableMarkdown, '', true);
   };
 
-  const toolbarSections = [
-    {
-      name: 'Text Formatting',
-      buttons: [
-        { icon: Bold, label: 'Bold', action: () => insertMarkdown('**', '**') },
-        { icon: Italic, label: 'Italic', action: () => insertMarkdown('*', '*') },
-        { icon: Strikethrough, label: 'Strikethrough', action: () => insertMarkdown('~~', '~~') },
-        { icon: Code, label: 'Inline Code', action: () => insertMarkdown('`', '`') },
-      ]
-    },
-    {
-      name: 'Headings',
-      buttons: [
-        { icon: Heading1, label: 'Heading 1', action: () => insertMarkdown('# ', '', true) },
-        { icon: Heading2, label: 'Heading 2', action: () => insertMarkdown('## ', '', true) },
-        { icon: Heading3, label: 'Heading 3', action: () => insertMarkdown('### ', '', true) },
-      ]
-    },
-    {
-      name: 'Lists & Blocks',
-      buttons: [
-        { icon: List, label: 'Bullet List', action: () => insertMarkdown('- ', '', true) },
-        { icon: ListOrdered, label: 'Numbered List', action: () => insertMarkdown('1. ', '', true) },
-        { icon: Quote, label: 'Quote', action: () => insertMarkdown('> ', '', true) },
-        { icon: Minus, label: 'Horizontal Rule', action: () => insertMarkdown('---', '', true) },
-      ]
-    },
-    {
-      name: 'Media & Links',
-      buttons: [
-        { icon: Link, label: 'Link', action: () => insertMarkdown('[', '](url)') },
-        { icon: Image, label: 'Image', action: () => insertMarkdown('![alt text](', ')') },
-        { icon: Table, label: 'Table', action: insertTable },
-      ]
-    }
-  ];
-
   const insertCodeBlock = () => {
     insertMarkdown('```\n', '\n```', true);
   };
 
+  const toolbarButtons = [
+    { icon: Bold, label: 'Bold', action: () => insertMarkdown('**', '**'), shortcut: 'Ctrl+B' },
+    { icon: Italic, label: 'Italic', action: () => insertMarkdown('*', '*'), shortcut: 'Ctrl+I' },
+    { icon: Strikethrough, label: 'Strikethrough', action: () => insertMarkdown('~~', '~~') },
+    { icon: Code, label: 'Inline Code', action: () => insertMarkdown('`', '`') },
+    { icon: Heading1, label: 'Heading 1', action: () => insertMarkdown('# ', '', true) },
+    { icon: Heading2, label: 'Heading 2', action: () => insertMarkdown('## ', '', true) },
+    { icon: Heading3, label: 'Heading 3', action: () => insertMarkdown('### ', '', true) },
+    { icon: List, label: 'Bullet List', action: () => insertMarkdown('- ', '', true) },
+    { icon: ListOrdered, label: 'Numbered List', action: () => insertMarkdown('1. ', '', true) },
+    { icon: Quote, label: 'Quote', action: () => insertMarkdown('> ', '', true) },
+    { icon: Link, label: 'Link', action: () => insertMarkdown('[', '](url)') },
+    { icon: Image, label: 'Image', action: () => insertMarkdown('![alt text](', ')') },
+    { icon: Table, label: 'Table', action: insertTable },
+    { icon: Minus, label: 'Horizontal Rule', action: () => insertMarkdown('---', '', true) },
+  ];
+
   return (
     <div className={`border rounded-lg ${className}`}>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'edit' | 'preview')}>
-        <div className="border-b">
-          <div className="flex items-center justify-between px-3 py-2">
-            <div className="flex items-center space-x-1 overflow-x-auto">
-              {toolbarSections.map((section, sectionIndex) => (
-                <React.Fragment key={section.name}>
-                  {sectionIndex > 0 && <Separator orientation="vertical" className="h-6 mx-2" />}
-                  {section.buttons.map((button, index) => (
-                    <Button
-                      key={`${section.name}-${index}`}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2 flex-shrink-0"
-                      onClick={button.action}
-                      type="button"
-                      title={button.label}
-                    >
-                      <button.icon className="h-3.5 w-3.5" />
-                    </Button>
-                  ))}
-                </React.Fragment>
+        <div className="border-b bg-muted/20">
+          <div className="flex items-center justify-between p-3">
+            <div className="flex items-center flex-wrap gap-1">
+              {toolbarButtons.map((button, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2"
+                  onClick={button.action}
+                  type="button"
+                  title={button.shortcut ? `${button.label} (${button.shortcut})` : button.label}
+                >
+                  <button.icon className="h-3.5 w-3.5" />
+                </Button>
               ))}
-              <Separator orientation="vertical" className="h-6 mx-2" />
+              <Separator orientation="vertical" className="h-6 mx-1" />
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 px-2 flex-shrink-0"
+                className="h-8 px-2"
                 onClick={insertCodeBlock}
                 type="button"
                 title="Code Block"
               >
                 <Code className="h-3.5 w-3.5 mr-1" />
-                Block
+                <span className="text-xs">Block</span>
               </Button>
             </div>
             
@@ -177,7 +152,7 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           
           <div className="px-3 pb-2">
             <p className="text-xs text-muted-foreground">
-              Use Markdown syntax: **bold**, *italic*, # heading, - lists, [links](url), ![images](url)
+              💡 Use Markdown: **bold**, *italic*, # heading, - lists, [links](url), ![images](url)
             </p>
           </div>
         </div>
@@ -188,19 +163,41 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className="min-h-[400px] border-0 resize-none focus-visible:ring-0 font-mono text-sm rounded-none"
+            className="min-h-[500px] border-0 resize-none focus-visible:ring-0 font-mono text-sm rounded-none"
             style={{ fontFamily: 'ui-monospace, "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace' }}
           />
         </TabsContent>
 
         <TabsContent value="preview" className="mt-0">
-          <div className="min-h-[400px] p-4 bg-background">
+          <div className="min-h-[500px] p-6 bg-background">
             {value ? (
               <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-muted prose-pre:border prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-table:border prose-th:border prose-td:border prose-th:bg-muted prose-th:p-2 prose-td:p-2">
-                <ReactMarkdown>{value}</ReactMarkdown>
+                <ReactMarkdown
+                  components={{
+                    code: ({ node, className, children, ...props }) => {
+                      const match = /language-(\w+)/.exec(className || '');
+                      const isCodeBlock = match || className?.includes('language-');
+                      
+                      return isCodeBlock ? (
+                        <code className="block bg-muted p-4 rounded-lg text-sm font-mono overflow-x-auto" {...props}>
+                          {children}
+                        </code>
+                      ) : (
+                        <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                          {children}
+                        </code>
+                      );
+                    }
+                  }}
+                >
+                  {value}
+                </ReactMarkdown>
               </div>
             ) : (
-              <p className="text-muted-foreground text-sm">Nothing to preview yet. Start writing in the Edit tab.</p>
+              <div className="flex flex-col items-center justify-center h-32 text-center">
+                <Type className="h-12 w-12 text-muted-foreground mb-2" />
+                <p className="text-muted-foreground text-sm">Nothing to preview yet. Start writing in the Edit tab.</p>
+              </div>
             )}
           </div>
         </TabsContent>
