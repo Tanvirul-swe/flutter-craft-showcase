@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,8 +16,36 @@ const AdminProtected: React.FC<AdminProtectedProps> = ({ children }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Check for existing session on component mount
+  useEffect(() => {
+    const checkSession = () => {
+      const adminSession = localStorage.getItem('admin_session');
+      if (adminSession) {
+        try {
+          const session = JSON.parse(adminSession);
+          const now = new Date().getTime();
+          // Check if session is still valid (24 hours)
+          if (session.expires > now) {
+            setIsAuthenticated(true);
+            setIsLoading(false);
+            return;
+          } else {
+            // Session expired, remove it
+            localStorage.removeItem('admin_session');
+          }
+        } catch (error) {
+          // Invalid session data, remove it
+          localStorage.removeItem('admin_session');
+        }
+      }
+      setIsLoading(false);
+    };
+
+    checkSession();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +66,14 @@ const AdminProtected: React.FC<AdminProtectedProps> = ({ children }) => {
       
       // Simple password comparison (in a production app, you should use proper hashing)
       if (admins && admins.password_hash === password) {
+        // Create session with 24-hour expiry
+        const sessionData = {
+          username: username,
+          loginTime: new Date().getTime(),
+          expires: new Date().getTime() + (24 * 60 * 60 * 1000) // 24 hours
+        };
+        
+        localStorage.setItem('admin_session', JSON.stringify(sessionData));
         setIsAuthenticated(true);
         toast.success('Successfully logged in as admin');
       } else {
@@ -50,6 +86,22 @@ const AdminProtected: React.FC<AdminProtectedProps> = ({ children }) => {
       setIsLoading(false);
     }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_session');
+    setIsAuthenticated(false);
+    setUsername('');
+    setPassword('');
+    toast.success('Successfully logged out');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -117,7 +169,23 @@ const AdminProtected: React.FC<AdminProtectedProps> = ({ children }) => {
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div>
+      {/* Admin Header with Logout */}
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <span className="font-semibold">Admin Panel</span>
+          </div>
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            Logout
+          </Button>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
 };
 
 export default AdminProtected;

@@ -5,10 +5,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogClose
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X, Calendar } from 'lucide-react';
 import { BlogPost } from '@/types/blog';
@@ -31,15 +29,15 @@ const BlogDetailsDialog: React.FC<BlogDetailsDialogProps> = ({ blog, isOpen, onO
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-10">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogClose>
         
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{blog.title}</DialogTitle>
-          <div className="flex items-center gap-2 mt-2">
+        <DialogHeader className="flex-shrink-0 pb-4">
+          <DialogTitle className="text-2xl font-bold pr-8">{blog.title}</DialogTitle>
+          <div className="flex flex-wrap items-center gap-2 mt-2">
             <span className="flex items-center text-sm text-muted-foreground">
               <Calendar className="mr-1 h-3.5 w-3.5" />
               {formattedDate}
@@ -54,18 +52,20 @@ const BlogDetailsDialog: React.FC<BlogDetailsDialogProps> = ({ blog, isOpen, onO
           </div>
         </DialogHeader>
         
-        {blog.coverImage && (
-          <div className="aspect-video w-full overflow-hidden rounded-md mb-4">
-            <img
-              src={blog.coverImage}
-              alt={blog.title}
-              className="w-full h-full object-cover"
-            />
+        <div className="flex-1 overflow-y-auto space-y-4">
+          {blog.coverImage && (
+            <div className="aspect-video w-full overflow-hidden rounded-md">
+              <img
+                src={blog.coverImage}
+                alt={blog.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+          
+          <div className="prose prose-sm sm:prose-base max-w-none dark:prose-invert">
+            <ReactMarkdown>{blog.content}</ReactMarkdown>
           </div>
-        )}
-        
-        <div className="prose prose-sm sm:prose-base max-w-none">
-          <ReactMarkdown>{blog.content}</ReactMarkdown>
         </div>
       </DialogContent>
     </Dialog>

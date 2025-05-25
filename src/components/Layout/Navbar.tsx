@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,14 +19,31 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const scrollToSection = (sectionId: string) => {
+    // Only scroll on home page
+    if (location.pathname !== '/') {
+      window.location.href = `/#${sectionId}`;
+      return;
+    }
+
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+    setIsMenuOpen(false);
+  };
+
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'About', href: '/#about' },
-    { name: 'Skills', href: '/#skills' },
-    { name: 'Projects', href: '/#projects' },
-    { name: 'Experience', href: '/#experience' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/#contact' },
+    { name: 'Home', href: '/', action: () => scrollToSection('home') },
+    { name: 'About', href: '/#about', action: () => scrollToSection('about') },
+    { name: 'Skills', href: '/#skills', action: () => scrollToSection('skills') },
+    { name: 'Projects', href: '/#projects', action: () => scrollToSection('projects') },
+    { name: 'Experience', href: '/#experience', action: () => scrollToSection('experience') },
+    { name: 'Blog', href: '/blog', action: null },
+    { name: 'Contact', href: '/#contact', action: () => scrollToSection('contact') },
   ];
 
   return (
@@ -43,13 +61,17 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             {navLinks.map((link) => (
-              <Link
+              <button
                 key={link.name}
-                to={link.href}
-                className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-flutter-blue transition-colors"
+                onClick={link.action || (() => {})}
+                className="px-4 py-2 text-sm font-medium text-foreground/80 hover:text-flutter-blue transition-colors cursor-pointer"
               >
-                {link.name}
-              </Link>
+                {link.action ? (
+                  <span>{link.name}</span>
+                ) : (
+                  <Link to={link.href}>{link.name}</Link>
+                )}
+              </button>
             ))}
             <div className="ml-2">
               <ThemeToggle />
@@ -74,14 +96,17 @@ const Navbar = () => {
         <div className="md:hidden bg-background/95 backdrop-blur-md py-4 px-4">
           <nav className="flex flex-col space-y-3">
             {navLinks.map((link) => (
-              <Link
+              <button
                 key={link.name}
-                to={link.href}
-                className="px-4 py-2 text-foreground/80 hover:text-flutter-blue transition-colors"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={link.action || (() => {})}
+                className="px-4 py-2 text-foreground/80 hover:text-flutter-blue transition-colors text-left"
               >
-                {link.name}
-              </Link>
+                {link.action ? (
+                  <span>{link.name}</span>
+                ) : (
+                  <Link to={link.href} onClick={() => setIsMenuOpen(false)}>{link.name}</Link>
+                )}
+              </button>
             ))}
           </nav>
         </div>
