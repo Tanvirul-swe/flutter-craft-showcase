@@ -96,11 +96,20 @@ const BlogDetailsDialog: React.FC<BlogDetailsDialogProps> = ({ blog, isOpen, onO
                       loading="lazy"
                     />
                   ),
-                  code: ({ node, inline, ...props }) => (
-                    inline ? 
-                      <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono" {...props} /> :
-                      <code className="block bg-muted p-4 rounded-lg text-sm font-mono overflow-x-auto" {...props} />
-                  ),
+                  code: ({ node, className, children, ...props }) => {
+                    const match = /language-(\w+)/.exec(className || '');
+                    const isCodeBlock = match || className?.includes('language-');
+                    
+                    return isCodeBlock ? (
+                      <code className="block bg-muted p-4 rounded-lg text-sm font-mono overflow-x-auto" {...props}>
+                        {children}
+                      </code>
+                    ) : (
+                      <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                        {children}
+                      </code>
+                    );
+                  },
                   blockquote: ({ node, ...props }) => (
                     <blockquote className="border-l-4 border-primary pl-4 italic my-4 text-muted-foreground" {...props} />
                   ),
