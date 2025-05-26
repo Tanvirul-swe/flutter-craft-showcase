@@ -151,10 +151,10 @@ const BlogPage: React.FC = () => {
           {/* Admin Portal Link */}
           <div className="flex justify-center mt-2">
             <Button variant="outline" size="sm" asChild>
-              <Link to="/admin" className="flex items-center gap-1.5">
+              <a href="/admin" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
                 <Lock size={14} />
                 Admin Portal
-              </Link>
+              </a>
             </Button>
           </div>
         </header>

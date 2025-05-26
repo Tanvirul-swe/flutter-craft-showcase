@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +38,7 @@ import { Edit, Eye, Trash2, Plus, Calendar } from 'lucide-react';
 const ITEMS_PER_PAGE = 10;
 
 const BlogList: React.FC = () => {
-  const { blogs, removeBlog } = useBlog();
+  const { blogs, removeBlog, isLoading } = useBlog();
   const [currentPage, setCurrentPage] = useState(1);
   const [blogToDelete, setBlogToDelete] = useState<{ id: string, title: string } | null>(null);
 
@@ -61,6 +62,61 @@ const BlogList: React.FC = () => {
       day: 'numeric',
     });
   };
+
+  // Loading skeleton component
+  const LoadingSkeleton = () => (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-10 w-24" />
+      </div>
+      
+      <div className="border rounded-md overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead>Title</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Created
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  Updated
+                </div>
+              </TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell className="text-right">
+                  <div className="flex justify-end gap-2">
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-8 w-8" />
+                    <Skeleton className="h-8 w-8" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+
+  if (isLoading) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <div className="space-y-6">
@@ -239,7 +295,7 @@ const BlogList: React.FC = () => {
             >
               Delete
             </AlertDialogAction>
-          </AlertDialogFooter>
+            </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
