@@ -22,7 +22,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   try {
     // Create the email message
     const message = [
-      `From: FlutterDev <${SMTP_CONFIG.username}>`,
+      `From: TanvirDev <${SMTP_CONFIG.username}>`,
       `To: ${to}`,
       `Subject: ${subject}`,
       `MIME-Version: 1.0`,
@@ -107,38 +107,76 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Sending welcome email to: ${email}`);
 
-    // Email content for welcome message
-    const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #2563eb; text-align: center;">Welcome to FlutterDev Blog!</h1>
-        
-        <p>Hello,</p>
-        
-        <p>Thank you for subscribing to our blog updates! We're excited to have you as part of our Flutter development community.</p>
-        
-        <p>You'll now receive notifications whenever we publish new blog posts about:</p>
-        <ul>
-          <li>Flutter development tips and tricks</li>
-          <li>Latest Flutter updates and features</li>
-          <li>Mobile app development best practices</li>
-          <li>Code tutorials and examples</li>
-        </ul>
-        
-        <p>Stay tuned for amazing content coming your way!</p>
-        
-        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
-          <p style="margin: 0; font-size: 14px; color: #6b7280;">
-            If you didn't subscribe to this newsletter, you can safely ignore this email.
-          </p>
-        </div>
-        
-        <p>Best regards,<br>
-        The FlutterDev Team</p>
-      </div>
-    `;
+    // Email content using your custom HTML template
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en" style="margin: 0; padding: 0;">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to Tanvir's Blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @media (max-width: 600px) {
+      .container {
+        width: 90% !important;
+        padding: 20px !important;
+      }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f8;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f6f8; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table class="container" width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 10px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+          <tr>
+            <td align="center" style="padding-bottom: 20px;">
+              <img src="https://tanvirdev.com/assets/logo.png" alt="TanvirDev Logo" width="80" style="margin-bottom: 20px;" onerror="this.style.display='none'">
+              <h1 style="font-size: 24px; color: #1d1d1d; margin: 0;">Welcome to Tanvir's Blog 👋</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="color: #4a4a4a; font-size: 16px; line-height: 1.6;">
+              <p style="margin: 0 0 20px;">
+                Hi there,
+              </p>
+              <p style="margin: 0 0 20px;">
+                Thanks for subscribing to my blog! You've just joined a community where I regularly share insights on <strong>software development, projects, career tips</strong>, and more.
+              </p>
+              <p style="margin: 0 0 20px;">
+                As a full-stack developer passionate about crafting real-world solutions, I'm excited to share what I've learned, built, and discovered with you.
+              </p>
+              <p style="margin: 0 0 20px;">
+                You'll now receive emails whenever a new blog is published.
+              </p>
+              <p style="margin: 0 0 30px;">
+                Let's build and grow together 🚀
+              </p>
+              <p style="margin: 0 0 30px;">
+                Best regards,<br>
+                <strong>MD. TANVIRUL ISLAM</strong><br>
+                <a href="https://tanvirdev.com" style="color: #007BFF; text-decoration: none;">tanvirdev.com</a>
+              </p>
+              <a href="https://tanvirdev.com/blog" style="background-color: #007BFF; color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 6px; display: inline-block; font-weight: 500;">Explore Latest Blogs</a>
+            </td>
+          </tr>
+          <tr>
+            <td align="center" style="padding-top: 40px; font-size: 12px; color: #999999;">
+              You're receiving this email because you subscribed on <a href="https://tanvirdev.com" style="color: #999999; text-decoration: underline;">tanvirdev.com</a>.
+              <br>
+              <a href="https://tanvirdev.com/unsubscribe" style="color: #999999; text-decoration: underline;">Unsubscribe</a> if you no longer wish to receive updates.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
 
     // Send the email
-    await sendEmail(email, "Welcome to FlutterDev Blog!", htmlContent);
+    await sendEmail(email, "Welcome to Tanvir's Blog!", htmlContent);
 
     console.log("Welcome email sent successfully to:", email);
 
