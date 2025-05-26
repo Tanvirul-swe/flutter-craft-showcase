@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -32,7 +33,21 @@ const SubscriptionForm: React.FC = () => {
       const success = subscribe(values.email);
       
       if (success) {
-        toast.success('Successfully subscribed to blog updates!');
+        // Send welcome email
+        try {
+          const { error } = await supabase.functions.invoke('send-welcome-email', {
+            body: { email: values.email }
+          });
+
+          if (error) {
+            console.error('Error sending welcome email:', error);
+          }
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail the subscription if email fails
+        }
+
+        toast.success('Successfully subscribed to blog updates! Check your email for a welcome message.');
         form.reset();
       }
     } catch (error) {
@@ -74,7 +89,7 @@ const SubscriptionForm: React.FC = () => {
             />
             <Button type="submit" disabled={isSubmitting}>
               <Mail className="mr-2 h-4 w-4" />
-              Subscribe
+              {isSubmitting ? 'Sending...' : 'Subscribe'}
             </Button>
           </div>
         </form>

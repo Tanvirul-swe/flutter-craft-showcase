@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
-import { sendEmail } from '@/utils/emailService';
+import { supabase } from '@/integrations/supabase/client';
 
 const ContactSection = () => {
   const { toast: shadcnToast } = useToast();
@@ -24,28 +24,39 @@ const ContactSection = () => {
     setIsSubmitting(true);
 
     try {
-      const success = await sendEmail({
-        name: formData.name,
-        email: formData.email,
-        subject: formData.subject,
-        message: formData.message
+      // Validate form data
+      if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+        toast.error("Please fill in all fields");
+        return;
+      }
+
+      // Send email using Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        }
       });
 
-      if (success) {
-        toast.success("Message sent! I'll get back to you soon.");
-
-        setFormData({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        });
-      } else {
-        toast.error("Something went wrong. Please try again later.");
+      if (error) {
+        throw error;
       }
+
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+
     } catch (error) {
       console.error("Error sending email:", error);
-      toast.error("Something went wrong. Please try again later.");
+      toast.error("Failed to send message. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -67,6 +78,7 @@ const ContactSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div className="reveal">
             <h3 className="text-2xl font-bold mb-6">Contact Information</h3>
+            
             <div className="space-y-6">
               <div className="flex items-start">
                 <div className="mr-4 mt-1 bg-flutter-blue/10 p-3 rounded-full">
@@ -107,6 +119,7 @@ const ContactSection = () => {
             </div>
 
             <h3 className="text-2xl font-bold mt-10 mb-6">Follow Me</h3>
+            
             <div className="flex space-x-4">
               <a
                 href="https://github.com/Tanvirul-swe"
