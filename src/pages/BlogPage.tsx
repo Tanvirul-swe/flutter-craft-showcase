@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useBlog } from '@/hooks/useBlog';
-import { BlogPost } from '@/types/blog'; // Added missing import
+import { BlogPost } from '@/types/blog';
 import BlogCard from '@/components/blog/BlogCard';
 import BlogDetailsDialog from '@/components/blog/BlogDetailsDialog';
 import SubscriptionForm from '@/components/blog/SubscriptionForm';
@@ -25,6 +25,7 @@ const ITEMS_PER_PAGE = 6;
 
 const BlogPage: React.FC = () => {
   const { publishedBlogs, isLoading } = useBlog();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,10 +75,8 @@ const BlogPage: React.FC = () => {
   };
 
   const handleAdminPortalClick = () => {
-    // Get the current domain and construct the admin URL
-    const currentDomain = window.location.origin;
-    const adminUrl = `${currentDomain}/admin`;
-    window.open(adminUrl, '_blank', 'noopener,noreferrer');
+    // For Vercel deployment, use client-side navigation
+    navigate('/admin');
   };
 
   // Generate pagination numbers
@@ -227,7 +226,7 @@ const BlogPage: React.FC = () => {
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
-                  setCurrentPage(1); // Reset to first page when search changes
+                  setCurrentPage(1);
                 }}
                 className="pl-10"
               />
