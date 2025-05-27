@@ -74,7 +74,10 @@ const BlogPage: React.FC = () => {
   };
 
   const handleAdminPortalClick = () => {
-    window.open('/admin', '_blank', 'noopener,noreferrer');
+    // Get the current domain and construct the admin URL
+    const currentDomain = window.location.origin;
+    const adminUrl = `${currentDomain}/admin`;
+    window.open(adminUrl, '_blank', 'noopener,noreferrer');
   };
 
   // Generate pagination numbers
