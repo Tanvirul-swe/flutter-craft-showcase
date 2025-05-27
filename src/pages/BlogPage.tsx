@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBlog } from '@/hooks/useBlog';
@@ -10,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Filter, Search, X, Lock } from 'lucide-react';
 import {
   Pagination,
@@ -24,7 +24,7 @@ import {
 const ITEMS_PER_PAGE = 6;
 
 const BlogPage: React.FC = () => {
-  const { publishedBlogs } = useBlog();
+  const { publishedBlogs, isLoading } = useBlog();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -71,6 +71,10 @@ const BlogPage: React.FC = () => {
   const handleBlogClick = (blog: BlogPost) => {
     setSelectedBlog(blog);
     setIsDialogOpen(true);
+  };
+
+  const handleAdminPortalClick = () => {
+    window.open('/admin', '_blank', 'noopener,noreferrer');
   };
 
   // Generate pagination numbers
@@ -139,6 +143,54 @@ const BlogPage: React.FC = () => {
     return items;
   };
 
+  // Loading skeleton component
+  const LoadingSkeleton = () => (
+    <div className="space-y-8">
+      {/* Header skeleton */}
+      <div className="text-center space-y-4">
+        <Skeleton className="h-12 w-48 mx-auto" />
+        <Skeleton className="h-6 w-96 mx-auto" />
+        <Skeleton className="h-10 w-32 mx-auto" />
+      </div>
+      
+      {/* Search and filters skeleton */}
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <Skeleton key={index} className="h-6 w-16" />
+          ))}
+        </div>
+      </div>
+      
+      {/* Blog cards skeleton */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div key={index} className="space-y-4 p-6 border rounded-lg">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-6 w-3/4" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+            <div className="flex gap-2">
+              <Skeleton className="h-5 w-12" />
+              <Skeleton className="h-5 w-16" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (isLoading) {
+    return (
+      <main className="container mx-auto px-4 py-24">
+        <div className="max-w-6xl mx-auto">
+          <LoadingSkeleton />
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="container mx-auto px-4 py-24">
       <div className="max-w-6xl mx-auto">
@@ -150,11 +202,14 @@ const BlogPage: React.FC = () => {
           
           {/* Admin Portal Link */}
           <div className="flex justify-center mt-2">
-            <Button variant="outline" size="sm" asChild>
-              <a href="/admin" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5">
-                <Lock size={14} />
-                Admin Portal
-              </a>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleAdminPortalClick}
+              className="flex items-center gap-1.5"
+            >
+              <Lock size={14} />
+              Admin Portal
             </Button>
           </div>
         </header>
